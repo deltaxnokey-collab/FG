@@ -1,0 +1,187 @@
+-- LocalScript ใน StarterGui
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+-- 1. สร้าง ScreenGui หลัก
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "RuzHubCustomUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = PlayerGui
+
+-- 2. สร้าง Main Frame (ตัวกรอบหลัก)
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 500, 0, 320)
+mainFrame.Position = UDim2.new(0.5, -250, 0.5, -160)
+mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+mainFrame.BorderColor3 = Color3.fromRGB(200, 0, 0)
+mainFrame.BorderSizePixel = 2
+mainFrame.Active = true
+mainFrame.Draggable = true -- สามารถลากย้ายตำแหน่งได้
+mainFrame.Parent = screenGui
+
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 10)
+mainCorner.Parent = mainFrame
+
+-- 3. แถบ Header ด้านบน
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Name = "Title"
+titleLabel.Size = UDim2.new(1, -50, 0, 35)
+titleLabel.Position = UDim2.new(0, 15, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "RuzHub <font color='#FF2A2A'>v1.0</font>"
+titleLabel.RichText = true
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextSize = 18
+titleLabel.Font = Enum.Font.Garamond
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.Parent = mainFrame
+
+-- ปุ่มปิด (X)
+local closeBtn = Instance.new("TextButton")
+closeBtn.Name = "CloseBtn"
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -35, 0, 5)
+closeBtn.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
+closeBtn.Text = "X"
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.Font = Enum.Font.SourceSansBold
+closeBtn.TextSize = 16
+closeBtn.Parent = mainFrame
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 6)
+closeCorner.Parent = closeBtn
+
+closeBtn.MouseButton1Click:Connect(function()
+    mainFrame.Visible = false
+end)
+
+-- 4. เมนูด้านข้าง (Sidebar)
+local sidebar = Instance.new("Frame")
+sidebar.Name = "Sidebar"
+sidebar.Size = UDim2.new(0, 130, 1, -45)
+sidebar.Position = UDim2.new(0, 10, 0, 40)
+sidebar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+sidebar.BorderSizePixel = 0
+sidebar.Parent = mainFrame
+
+local sidebarCorner = Instance.new("UICorner")
+sidebarCorner.CornerRadius = UDim.new(0, 8)
+sidebarCorner.Parent = sidebar
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Parent = sidebar
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 5)
+
+-- ฟังก์ชันสร้างปุ่มใน Sidebar
+local function createTabButton(text, order)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -10, 0, 32)
+    btn.Position = UDim2.new(0, 5, 0, 0)
+    btn.BackgroundColor3 = order == 1 and Color3.fromRGB(150, 0, 0) or Color3.fromRGB(35, 35, 35)
+    btn.Text = "  " .. text
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.SourceSansSemibold
+    btn.TextSize = 14
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    btn.LayoutOrder = order
+    btn.Parent = sidebar
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 6)
+    btnCorner.Parent = btn
+    
+    return btn
+end
+
+createTabButton("Player", 1)
+createTabButton("Visual", 2)
+createTabButton("Combat", 3)
+createTabButton("Utilities", 4)
+createTabButton("Config", 5)
+
+-- 5. พื้นที่แสดงเนื้อหาหลัก (Content Area)
+local contentFrame = Instance.new("Frame")
+contentFrame.Name = "ContentArea"
+contentFrame.Size = UDim2.new(1, -160, 1, -45)
+contentFrame.Position = UDim2.new(0, 150, 0, 40)
+contentFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+contentFrame.BorderSizePixel = 0
+contentFrame.Parent = mainFrame
+
+local contentCorner = Instance.new("UICorner")
+contentCorner.CornerRadius = UDim.new(0, 8)
+contentCorner.Parent = contentFrame
+
+-- ตัวอย่าง: สร้างปุ่ม Toggle (สวิตช์ เปิด/ปิด)
+local toggleFrame = Instance.new("Frame")
+toggleFrame.Size = UDim2.new(1, -20, 0, 40)
+toggleFrame.Position = UDim2.new(0, 10, 0, 10)
+toggleFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+toggleFrame.Parent = contentFrame
+
+local tfCorner = Instance.new("UICorner")
+tfCorner.CornerRadius = UDim.new(0, 6)
+tfCorner.Parent = toggleFrame
+
+local toggleLabel = Instance.new("TextLabel")
+toggleLabel.Size = UDim2.new(0.7, 0, 1, 0)
+toggleLabel.Position = UDim2.new(0, 10, 0, 0)
+toggleLabel.BackgroundTransparency = 1
+toggleLabel.Text = "เปิดใช้งานระบบตัวอย่าง"
+toggleLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+toggleLabel.Font = Enum.Font.SourceSans
+toggleLabel.TextSize = 14
+toggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+toggleLabel.Parent = toggleFrame
+
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 45, 0, 22)
+toggleBtn.Position = UDim2.new(1, -55, 0.5, -11)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+toggleBtn.Text = ""
+toggleBtn.Parent = toggleFrame
+
+local tbCorner = Instance.new("UICorner")
+tbCorner.CornerRadius = UDim.new(1, 0)
+tbCorner.Parent = toggleBtn
+
+local circle = Instance.new("Frame")
+circle.Size = UDim2.new(0, 18, 0, 18)
+circle.Position = UDim2.new(0, 2, 0.5, -9)
+circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+circle.Parent = toggleBtn
+
+local circleCorner = Instance.new("UICorner")
+circleCorner.CornerRadius = UDim.new(1, 0)
+circleCorner.Parent = circle
+
+-- กลไกทำงานของ Toggle
+local isOn = false
+toggleBtn.MouseButton1Click:Connect(function()
+    isOn = not isOn
+    if isOn then
+        TweenService:Create(circle, TweenInfo.new(0.2), {Position = UDim2.new(1, -20, 0.5, -9)}):Play()
+        TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(200, 0, 0)}):Play()
+        print("Toggle Activated!")
+    else
+        TweenService:Create(circle, TweenInfo.new(0.2), {Position = UDim2.new(0, 2, 0.5, -9)}):Play()
+        TweenService:Create(toggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
+        print("Toggle Deactivated!")
+    end
+end)
+
+-- กดปุ่ม RightShift เพื่อ ซ่อน/แสดง เมนู
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if not gpe and input.KeyCode == Enum.KeyCode.RightShift then
+        mainFrame.Visible = not mainFrame.Visible
+    end
+end)
+
